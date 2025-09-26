@@ -4,6 +4,7 @@ import { RecipesPage } from "@/features/recipes/pages/RecipesPage";
 import { PlannerPage } from "@/features/planner/pages/PlannerPage";
 import { PantryPage } from "@/features/pantry/pages/PantryPage";
 import { ShoppingPage } from "@/features/shopping/pages/ShoppingPage";
+import AuthPage from "@/features/auth/pages/AuthPage";
 
 export const router = createBrowserRouter([
   {
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
       { path: "recipes", element: <RecipesPage /> },
       { path: "pantry", element: <PantryPage /> },
       { path: "shopping", element: <ShoppingPage /> },
+      { path: "auth", element: <AuthPage /> },
     ],
   },
 ]);
