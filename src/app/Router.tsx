@@ -1,15 +1,15 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import RequireAuth from "@/app/routes/RequireAuth";
-import RequireGuest from "@/app/routes/RequireGuest";
-import PublicLayout from "@/components/layout/PublicLayout";
-import PrivateLayout from "@/components/layout/PrivateLayout";
+import RequireAuth from '@/app/routes/RequireAuth';
+import RequireGuest from '@/app/routes/RequireGuest';
+import PublicLayout from '@/components/layout/PublicLayout';
+import PrivateLayout from '@/components/layout/PrivateLayout';
 
-import { AuthPage } from "@/features/auth/pages/AuthPage";
-import { PlannerPage } from "@/features/planner/pages/PlannerPage";
-import { RecipesPage } from "@/features/recipes/pages/RecipesPage";
-import { PantryPage } from "@/features/pantry/pages/PantryPage";
-import { ShoppingPage } from "@/features/shopping/pages/ShoppingPage";
+import { AuthPage } from '@/features/auth/pages/AuthPage';
+import { PlannerPage } from '@/features/planner/pages/PlannerPage';
+import { RecipesPage } from '@/features/recipes/pages/RecipesPage';
+import { PantryPage } from '@/features/pantry/pages/PantryPage';
+import { ShoppingPage } from '@/features/shopping/pages/ShoppingPage';
 
 export const router = createBrowserRouter([
   {
@@ -18,8 +18,8 @@ export const router = createBrowserRouter([
       {
         element: <PublicLayout />,
         children: [
-          { path: "/", element: <Navigate to="/auth" replace /> },
-          { path: "/auth", element: <AuthPage /> },
+          { path: '/', element: <Navigate to="/auth" replace /> },
+          { path: '/auth', element: <AuthPage /> },
         ],
       },
     ],
@@ -30,10 +30,10 @@ export const router = createBrowserRouter([
       {
         element: <PrivateLayout />,
         children: [
-          { path: "/recipes", element: <RecipesPage /> },
-          { path: "/planner", element: <PlannerPage /> },
-          { path: "/pantry", element: <PantryPage /> },
-          { path: "/shopping", element: <ShoppingPage /> },
+          { path: '/recipes', element: <RecipesPage /> },
+          { path: '/planner', element: <PlannerPage /> },
+          { path: '/pantry', element: <PantryPage /> },
+          { path: '/shopping', element: <ShoppingPage /> },
         ],
       },
     ],

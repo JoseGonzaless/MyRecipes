@@ -1,6 +1,6 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet } from 'react-router-dom';
 
-import { signOut } from "@/features/auth/api/auth";
+import { signOut } from '@/features/auth/api/auth';
 
 export default function PrivateLayout() {
   return (

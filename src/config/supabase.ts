@@ -1,6 +1,6 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-import { env } from "./env";
+import { env } from './env';
 
 let supabaseSingleton: SupabaseClient | null = null;
 
@@ -10,8 +10,8 @@ function createSupabaseClient(): SupabaseClient {
 
   if (!url || !anonKey) {
     throw new Error(
-      "[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. " +
-        "Check your .env and .env.example."
+      '[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. ' +
+        'Check your .env and .env.example.'
     );
   }
 

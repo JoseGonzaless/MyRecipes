@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import type { Session, AuthChangeEvent } from "@supabase/supabase-js";
-import { supabase } from "@/config/supabase";
+import { useEffect, useState } from 'react';
+import type { Session, AuthChangeEvent } from '@supabase/supabase-js';
+import { supabase } from '@/config/supabase';
 
 export function useSession() {
   const [session, setSession] = useState<Session | null>(null);
@@ -16,8 +16,8 @@ export function useSession() {
       setLoading(false);
     })();
 
-    const { data: sub } = supabase.auth.onAuthStateChange(
-      (_evt: AuthChangeEvent, s) => setSession(s)
+    const { data: sub } = supabase.auth.onAuthStateChange((_evt: AuthChangeEvent, s) =>
+      setSession(s)
     );
 
     return () => {
