@@ -3,30 +3,36 @@ import type { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { signIn } from '@/features/auth/api/auth';
-import { signInSchema, type SignInInput } from '@/features/auth/schemas/auth';
+import { resetPasswordForEmail } from '@/features/auth/api/auth';
+import { resetSchema, type ResetInput } from '@/features/auth/schemas/auth';
 
-export function SignInForm() {
+export function ResetPasswordForm() {
   const [serverError, setServerError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<SignInInput>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: { email: '', password: '' },
+  } = useForm<ResetInput>({
+    resolver: zodResolver(resetSchema),
+    defaultValues: { email: '' },
   });
 
-  async function onSubmit(values: z.infer<typeof signInSchema>) {
+  async function onSubmit(values: z.infer<typeof resetSchema>) {
     setServerError(null);
     try {
-      await signIn(values.email, values.password);
-      reset({ email: '', password: '' });
+      await resetPasswordForEmail(values.email);
+      setSent(true);
+      reset({ email: '' });
     } catch (e: any) {
-      setServerError(e?.message ?? 'Sign-in failed');
+      setServerError(e?.message ?? 'Could not send reset email');
     }
+  }
+
+  if (sent) {
+    return <p>If an account exists for that email, we have sent a password reset link</p>;
   }
 
   return (
@@ -37,16 +43,10 @@ export function SignInForm() {
       </label>
       {errors.email && <small role="alert">{errors.email.message}</small>}
 
-      <label>
-        Password
-        <input type="password" autoComplete="current-password" {...register('password')} />
-      </label>
-      {errors.password && <small role="alert">{errors.password.message}</small>}
-
       {serverError && <p role="alert">{serverError}</p>}
 
       <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Signing in…' : 'Sign in'}
+        {isSubmitting ? 'Sending…' : 'Send reset link'}
       </button>
     </form>
   );

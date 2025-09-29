@@ -1,34 +1,64 @@
-import { useState } from 'react';
-import { useLocation, useNavigate, type Location as RRLocation } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import { signIn } from '@/features/auth/api/auth';
-import type { SignInInput } from '@/features/auth/schemas/auth';
 import { SignInForm } from '@/features/auth/components/SignInForm';
+import { SignUpForm } from '@/features/auth/components/SignUpForm';
+import { ResetPasswordForm } from '@/features/auth/components/ResetPasswordForm';
 
-type FromState = { from?: RRLocation };
+type Mode = 'signin' | 'signup' | 'reset';
+
+function useMode(): Mode {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const raw = (params.get('mode') ?? 'signin').toLowerCase();
+  return ['signin', 'signup', 'reset'].includes(raw) ? (raw as Mode) : 'signin';
+}
 
 export function AuthPage() {
-  const [error, setError] = useState<string | null>(null);
+  const mode = useMode();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const from = (location.state as FromState | undefined)?.from?.pathname ?? '/recipes';
-
-  async function handleSubmit(values: SignInInput) {
-    setError(null);
-    try {
-      await signIn(values.email, values.password);
-      navigate(from, { replace: true });
-    } catch (e) {
-      setError('Unable to sign in. Please check your email/password and try again.');
-    }
-  }
+  const title = useMemo(
+    () =>
+      ({
+        signin: 'Sign In',
+        signup: 'Create Account',
+        reset: 'Reset Password',
+      }[mode]),
+    [mode]
+  );
 
   return (
-    <section>
-      <h1>Sign in</h1>
-      <SignInForm onSubmit={handleSubmit} />
-      {error && <small role="alert">{error}</small>}
-    </section>
+    <main>
+      <h1>{title}</h1>
+
+      {mode === 'signin' && (
+        <>
+          <SignInForm />
+          <p>
+            <a onClick={() => navigate('/auth?mode=signup')}>Don't have an account?</a> ·{' '}
+            <a onClick={() => navigate('/auth?mode=reset')}>Forgot password?</a>
+          </p>
+        </>
+      )}
+
+      {mode === 'signup' && (
+        <>
+          <SignUpForm />
+          <p>
+            <a onClick={() => navigate('/auth?mode=signin')}>Already have an account?</a>
+          </p>
+        </>
+      )}
+
+      {mode === 'reset' && (
+        <>
+          <ResetPasswordForm />
+          <p>
+            <a onClick={() => navigate('/auth?mode=signin')}>Back to sign in</a>
+          </p>
+        </>
+      )}
+    </main>
   );
 }

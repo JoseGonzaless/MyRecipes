@@ -24,6 +24,6 @@ function createSupabaseClient(): SupabaseClient {
   });
 }
 
-/** App-wide Supabase client (singleton). */
+// App-wide Supabase client (singleton).
 export const supabase: SupabaseClient =
   supabaseSingleton ?? (supabaseSingleton = createSupabaseClient());
