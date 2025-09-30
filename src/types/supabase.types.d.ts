@@ -244,7 +244,7 @@ export type Database = {
           name: string;
           notes: string | null;
           owner_id: string;
-          serving_size: string | null;
+          serving_size: number | null;
           total_time: string | null;
           updated_at: string;
         };
@@ -254,8 +254,8 @@ export type Database = {
           image_url?: string | null;
           name: string;
           notes?: string | null;
-          owner_id: string;
-          serving_size?: string | null;
+          owner_id?: string;
+          serving_size?: number | null;
           total_time?: string | null;
           updated_at?: string;
         };
@@ -266,7 +266,7 @@ export type Database = {
           name?: string;
           notes?: string | null;
           owner_id?: string;
-          serving_size?: string | null;
+          serving_size?: number | null;
           total_time?: string | null;
           updated_at?: string;
         };
