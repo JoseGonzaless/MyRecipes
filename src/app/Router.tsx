@@ -9,6 +9,7 @@ import { AuthPage } from '@/features/auth/pages/AuthPage';
 import { UpdatePasswordPage } from '@/features/auth/pages/UpdatePasswordPage';
 import { PlannerPage } from '@/features/planner/pages/PlannerPage';
 import { RecipesPage } from '@/features/recipes/pages/RecipesPage';
+import { RecipeDetailPage } from '@/features/recipes/pages/RecipeDetailsPage';
 import { PantryPage } from '@/features/pantry/pages/PantryPage';
 import { ShoppingPage } from '@/features/shopping/pages/ShoppingPage';
 
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
         element: <PrivateLayout />,
         children: [
           { path: '/recipes', element: <RecipesPage /> },
+          { path: '/recipes/:id', element: <RecipeDetailPage /> },
           { path: '/planner', element: <PlannerPage /> },
           { path: '/pantry', element: <PantryPage /> },
           { path: '/shopping', element: <ShoppingPage /> },

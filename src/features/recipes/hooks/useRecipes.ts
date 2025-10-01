@@ -1,17 +1,45 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listRecipes, createRecipe } from '../api/recipes';
-import type { RecipeCreateInput } from '../schemas/recipe';
 
-const QUERY_KEY = ['recipes', 'list'];
+import { listRecipes, createRecipe, getRecipe, updateRecipe } from '@/features/recipes/api/recipes';
+import type { RecipeCreateInput, RecipeUpdateInput } from '@/features/recipes/schemas/recipe';
+
+const qk = {
+  recipes: ['recipes'] as const,
+  recipe: (id: string) => ['recipes', id] as const,
+};
 
 export function useRecipes() {
-  return useQuery({ queryKey: QUERY_KEY, queryFn: listRecipes });
+  return useQuery({
+    queryKey: qk.recipes,
+    queryFn: listRecipes,
+  });
 }
 
 export function useCreateRecipe() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: RecipeCreateInput) => createRecipe(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.recipes });
+    },
+  });
+}
+
+export function useRecipe(id: string) {
+  return useQuery({
+    queryKey: qk.recipe(id),
+    queryFn: () => getRecipe(id),
+    enabled: !!id,
+  });
+}
+
+export function useUpdateRecipe(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (patch: RecipeUpdateInput) => updateRecipe(id, patch),
+    onSuccess: (data) => {
+      qc.setQueryData(qk.recipe(id), data);
+      qc.invalidateQueries({ queryKey: qk.recipes });
+    },
   });
 }

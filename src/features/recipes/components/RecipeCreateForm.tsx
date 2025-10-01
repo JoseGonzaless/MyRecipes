@@ -34,19 +34,14 @@ export function RecipeCreateForm() {
       <label>
         Recipe name
         <input type="text" autoComplete="off" {...register('name')} />
+        {errors.name && <small role="alert">{errors.name.message}</small>}
       </label>
-      {errors.name && <small role="alert">{errors.name.message}</small>}
 
       <label>
         Serving size
-        <input
-          type="number"
-          min={1}
-          inputMode="numeric"
-          {...register('serving_size', { valueAsNumber: true })}
-        />
+        <input type="number" inputMode="numeric" min={1} {...register('serving_size', { valueAsNumber: true })} />
+        {errors.serving_size && <small role="alert">{errors.serving_size.message}</small>}
       </label>
-      {errors.serving_size && <small role="alert">{errors.serving_size.message}</small>}
 
       {serverError && <p role="alert">{serverError}</p>}
 
