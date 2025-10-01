@@ -2118,9 +2118,6 @@ article > footer {
     border-color: transparent;
   }
   [role='search']:has(input:not([type='submit'], [type='button']):focus, select:focus),
-  [role='group']:has(input:not([type='submit'], [type='button']):focus, select:focus) {
-    --pico-group-box-shadow: var(--pico-group-box-shadow-focus-with-input);
-  }
   [role='search']:has(input:not([type='submit'], [type='button']):focus, select:focus) button,
   [role='search']:has(input:not([type='submit'], [type='button']):focus, select:focus)
     [type='submit'],
