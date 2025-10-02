@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { recipeUpdateSchema, type RecipeUpdateInput } from '@/features/recipes/schemas/recipe';
+import { recipeUpdateSchema, type RecipeUpdateFormValues } from '@/features/recipes/schemas/recipe';
 import { useUpdateRecipe } from '@/features/recipes/hooks/useRecipes';
 import type { Database } from '@/types/supabase.types';
 
@@ -15,20 +14,31 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isDirty },
-    reset,
-  } = useForm<RecipeUpdateInput>({
+  } = useForm<RecipeUpdateFormValues>({
     resolver: zodResolver(recipeUpdateSchema),
-    defaultValues: { name: recipe.name ?? '', serving_size: recipe.serving_size ?? 1 },
+    defaultValues: {
+      name: recipe.name ?? '',
+      serving_size: recipe.serving_size ?? 1,
+      total_time: recipe.total_time === null || recipe.total_time === undefined ? undefined : Number(recipe.total_time),
+      notes: recipe.notes ?? undefined,
+      instructions: Array.isArray(recipe.instructions)
+        ? recipe.instructions.join('\n')
+        : recipe.instructions ?? undefined,
+    },
   });
 
-  useEffect(() => {
-    if (!isDirty) {
-      reset({ name: recipe.name ?? '', serving_size: recipe.serving_size ?? 1 });
+  async function onSubmit(values: RecipeUpdateFormValues) {
+    try {
+      await update.mutateAsync({
+        ...values,
+        total_time: values.total_time ?? undefined,
+        notes: values.notes ?? undefined,
+        image_url: values.image_url ?? undefined,
+        instructions: values.instructions,
+      });
+    } catch (error) {
+      console.error('Update failed:', error);
     }
-  }, [recipe.id, recipe.name, recipe.serving_size, reset, isDirty]);
-
-  async function onSubmit(values: RecipeUpdateInput) {
-    await update.mutateAsync(values);
   }
 
   return (
@@ -40,7 +50,7 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
       </label>
 
       <label>
-        <span>Servings</span>
+        Servings
         <input
           type="number"
           inputMode="numeric"
@@ -51,8 +61,31 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
         {errors.serving_size && <small role="alert">{errors.serving_size.message}</small>}
       </label>
 
+      <label>
+        Total time (minutes)
+        <input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          {...register('total_time', { valueAsNumber: true })}
+          aria-invalid={!!errors.total_time}
+        />
+        {errors.total_time && <small role="alert">{errors.total_time.message}</small>}
+      </label>
+
+      <label>
+        Notes
+        <textarea rows={3} {...register('notes')} aria-invalid={!!errors.notes} />
+        {errors.notes && <small role="alert">{errors.notes.message}</small>}
+      </label>
+
+      <label>
+        Instructions
+        <textarea rows={6} {...register('instructions')} />
+      </label>
+
       <button type="submit" disabled={isSubmitting || update.isPending || !isDirty}>
-        {update.isPending ? 'Saving…' : 'Save'}
+        {update.isPending ? 'Saving' : 'Save'}
       </button>
     </form>
   );

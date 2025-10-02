@@ -46,7 +46,7 @@ export function AuthPage() {
         <>
           <SignUpForm />
           <p>
-            <a onClick={() => navigate('/auth?mode=signin')}>Already have an account?</a>
+            <a onClick={() => navigate('/auth?mode=signin')}>Back to sign in</a>
           </p>
         </>
       )}

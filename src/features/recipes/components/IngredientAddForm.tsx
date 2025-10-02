@@ -39,19 +39,25 @@ export function IngredientAddForm({ recipeId }: { recipeId: string }) {
       <div role="group" style={{ gap: '2rem' }}>
         <label>
           Name
-          <input type="text" autoComplete="off" {...register('name')} />
+          <input type="text" autoComplete="off" {...register('name')} style={{ marginBottom: '1rem' }} />
           {errors.name && <small role="alert">{errors.name.message}</small>}
         </label>
 
         <label>
           Quantity
-          <input type="number" inputMode="numeric" min={1} {...register('quantity', { valueAsNumber: true })} />
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            {...register('quantity', { valueAsNumber: true })}
+            style={{ marginBottom: '1rem' }}
+          />
           {errors.quantity && <small role="alert">{errors.quantity.message}</small>}
         </label>
 
         <label>
           Unit
-          <input type="text" {...register('unit')} />
+          <input type="text" {...register('unit')} style={{ marginBottom: '1rem' }} />
         </label>
       </div>
 
@@ -63,7 +69,7 @@ export function IngredientAddForm({ recipeId }: { recipeId: string }) {
       {serverError && <p role="alert">{serverError}</p>}
 
       <button type="submit" disabled={isSubmitting || create.isPending}>
-        {create.isPending ? 'Adding…' : 'Add'}
+        {create.isPending ? 'Adding' : 'Add'}
       </button>
     </form>
   );
