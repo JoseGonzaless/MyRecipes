@@ -9,28 +9,42 @@ export function RecipesPage() {
     <main className="container">
       <h1>Recipes</h1>
 
+      {isLoading && <p>Loading</p>}
+      {error && <p role="alert">Error loading recipes.</p>}
+
+      {!isLoading && !error && (
+        <>
+          {data?.length ? (
+            <section
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(260px, 50%), 1fr))',
+                gap: '1rem',
+              }}>
+              {data.map((recipe) => (
+                <article key={recipe.id}>
+                  <header>
+                    <h3>
+                      <Link to={`/recipes/${recipe.id}`}>{recipe.name}</Link>
+                    </h3>
+                  </header>
+
+                  <p>
+                    <strong>Servings:</strong> {recipe.serving_size ? recipe.serving_size : '—'}
+                  </p>
+                  <p>
+                    <strong>Total Time:</strong> {recipe.total_time ? recipe.total_time : '—'}
+                  </p>
+                </article>
+              ))}
+            </section>
+          ) : (
+            <p>No recipes yet — add your first one above.</p>
+          )}
+        </>
+      )}
+
       <RecipeCreateForm />
-
-      {isLoading && <p>Loading…</p>}
-      {error && <p>Error loading recipes.</p>}
-
-      {!isLoading &&
-        !error &&
-        (data?.length ? (
-          // this displays all recipes, but could be changed to cards or something in the future
-          <ul>
-            {data.map((recipe) => (
-              <li key={recipe.id}>
-                <strong>
-                  <Link to={`/recipes/${recipe.id}`}>{recipe.name}</Link>
-                </strong>
-                {recipe.serving_size ? <> — servings: {String(recipe.serving_size)}</> : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No recipes yet — add your first one above.</p>
-        ))}
     </main>
   );
 }

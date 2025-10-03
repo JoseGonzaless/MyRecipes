@@ -4,7 +4,12 @@ import { signOut } from '@/features/auth/api/auth';
 
 export default function PrivateLayout() {
   return (
-    <main style={{ padding: '0rem 1rem 1rem' }}>
+    <main
+      style={{
+        width: 'clamp(375px, 95vw, 960px)',
+        margin: '0 auto',
+        padding: '0 1rem 1rem',
+      }}>
       <header>
         <nav>
           <ul>

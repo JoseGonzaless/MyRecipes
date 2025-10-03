@@ -36,30 +36,32 @@ export function IngredientAddForm({ recipeId }: { recipeId: string }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div role="group" style={{ gap: '2rem' }}>
-        <label>
+      <fieldset role="group" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+        <label style={{ flex: '2 1 24rem' }}>
           Name
           <input type="text" autoComplete="off" {...register('name')} style={{ marginBottom: '1rem' }} />
           {errors.name && <small role="alert">{errors.name.message}</small>}
         </label>
 
-        <label>
-          Quantity
-          <input
-            type="number"
-            inputMode="numeric"
-            min={1}
-            {...register('quantity', { valueAsNumber: true })}
-            style={{ marginBottom: '1rem' }}
-          />
-          {errors.quantity && <small role="alert">{errors.quantity.message}</small>}
-        </label>
+        <div style={{ display: 'flex', gap: '1rem', flex: '1 1 16rem' }}>
+          <label style={{ flex: '1 1 8rem' }}>
+            Quantity
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              {...register('quantity', { valueAsNumber: true })}
+              style={{ marginBottom: '1rem' }}
+            />
+            {errors.quantity && <small role="alert">{errors.quantity.message}</small>}
+          </label>
 
-        <label>
-          Unit
-          <input type="text" {...register('unit')} style={{ marginBottom: '1rem' }} />
-        </label>
-      </div>
+          <label style={{ flex: '1 1 8rem' }}>
+            Unit
+            <input type="text" {...register('unit')} style={{ marginBottom: '1rem' }} />
+          </label>
+        </div>
+      </fieldset>
 
       <label>
         Notes

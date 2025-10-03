@@ -43,39 +43,43 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <label>
-        Name
-        <input type="text" {...register('name')} aria-invalid={!!errors.name} />
-        {errors.name && <small role="alert">{errors.name.message}</small>}
-      </label>
+      <fieldset role="group" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+        <label style={{ flex: '2 1 24rem' }}>
+          Name
+          <input type="text" {...register('name')} aria-invalid={!!errors.name} />
+          {errors.name && <small role="alert">{errors.name.message}</small>}
+        </label>
 
-      <label>
-        Servings
-        <input
-          type="number"
-          inputMode="numeric"
-          min={1}
-          {...register('serving_size', { valueAsNumber: true })}
-          aria-invalid={!!errors.serving_size}
-        />
-        {errors.serving_size && <small role="alert">{errors.serving_size.message}</small>}
-      </label>
+        <div style={{ display: 'flex', gap: '1rem', flex: '1 1 16rem' }}>
+          <label style={{ flex: '1 1 8rem' }}>
+            Servings
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              {...register('serving_size', { valueAsNumber: true })}
+              aria-invalid={!!errors.serving_size}
+            />
+            {errors.serving_size && <small role="alert">{errors.serving_size.message}</small>}
+          </label>
 
-      <label>
-        Total time (minutes)
-        <input
-          type="number"
-          inputMode="numeric"
-          min={0}
-          {...register('total_time', { valueAsNumber: true })}
-          aria-invalid={!!errors.total_time}
-        />
-        {errors.total_time && <small role="alert">{errors.total_time.message}</small>}
-      </label>
+          <label style={{ flex: '1 1 8rem' }}>
+            Total time (min)
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              {...register('total_time', { valueAsNumber: true })}
+              aria-invalid={!!errors.total_time}
+            />
+            {errors.total_time && <small role="alert">{errors.total_time.message}</small>}
+          </label>
+        </div>
+      </fieldset>
 
       <label>
         Notes
-        <textarea rows={3} {...register('notes')} aria-invalid={!!errors.notes} />
+        <textarea rows={3} {...register('notes')} />
         {errors.notes && <small role="alert">{errors.notes.message}</small>}
       </label>
 
