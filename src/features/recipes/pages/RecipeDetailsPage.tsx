@@ -124,6 +124,7 @@ export function RecipeDetailPage() {
             />
           ) : (
             <IngredientsDisplayView
+              recipeId={recipeId}
               ingredients={ingredients}
               isLoading={ingredientsLoading}
               isError={ingredientsError}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { UNITS } from '@/lib/constants';
 
 import { useCreateIngredient } from '@/features/recipes/hooks/useRecipeIngredients';
 import {
@@ -28,7 +29,7 @@ export function IngredientAddForm({ recipeId }: { recipeId: string }) {
     try {
       const parsed: IngredientCreateInput = ingredientCreateSchema.parse(values);
       await create.mutateAsync(parsed);
-      reset({ name: '', quantity: 1, unit: '', notes: '' });
+      reset({ name: '', quantity: 1, unit: undefined, notes: undefined });
     } catch (e: any) {
       setServerError(e?.message ?? 'Failed to add ingredient.');
     }
@@ -58,7 +59,18 @@ export function IngredientAddForm({ recipeId }: { recipeId: string }) {
 
           <label style={{ flex: '1 1 8rem' }}>
             Unit
-            <input type="text" {...register('unit')} style={{ marginBottom: '1rem' }} />
+            <select
+              {...register('unit', {
+                setValueAs: (v) => (v === '' ? undefined : v),
+              })}
+              style={{ marginBottom: '1rem' }}>
+              <option value="">{/* empty = “no unit” */}</option>
+              {UNITS.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
       </fieldset>

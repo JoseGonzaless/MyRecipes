@@ -1,6 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import type { Database } from '@/types/supabase.types';
-import type { IngredientUpdateInput } from '@/features/recipes/schemas/recipeIngredients';
+import {
+  ingredientUpdateSchema,
+  type IngredientUpdateFormValues,
+  type IngredientUpdateInput,
+} from '@/features/recipes/schemas/recipeIngredients';
+
+import { UNITS, isUnit } from '@/lib/constants';
 
 type Ingredient = Database['public']['Tables']['recipe_ingredients']['Row'];
 
@@ -12,26 +21,44 @@ interface IngredientEditRowProps {
 
 export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEditRowProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [pending, setPending] = useState(false);
-  const [justSaved, setJustSaved] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const handleSave = async (patch: IngredientUpdateInput) => {
-    setPending(true);
-    setJustSaved(false);
-    setError(null);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<IngredientUpdateFormValues>({
+    resolver: zodResolver(ingredientUpdateSchema),
+    defaultValues: {
+      name: ingredient.name ?? '',
+      quantity: ingredient.quantity ?? 1,
+      unit: isUnit(ingredient.unit) ? (ingredient.unit as any) : undefined,
+      notes: ingredient.notes ?? undefined,
+    },
+  });
 
+  useEffect(() => {
+    if (!isEditing) return;
+    reset({
+      name: ingredient.name ?? '',
+      quantity: ingredient.quantity ?? 1,
+      unit: isUnit(ingredient.unit) ? (ingredient.unit as any) : undefined,
+      notes: ingredient.notes ?? undefined,
+    });
+  }, [isEditing, ingredient.id, ingredient.name, ingredient.quantity, ingredient.unit, ingredient.notes, reset]);
+
+  async function onSubmit(values: IngredientUpdateFormValues) {
+    setServerError(null);
     try {
-      await onSave(ingredient.id, patch);
-      setJustSaved(true);
-      setTimeout(() => setJustSaved(false), 1500);
+      const parsed: IngredientUpdateInput = ingredientUpdateSchema.parse(values);
+      await onSave(ingredient.id, parsed);
+      setTimeout(() => 1500);
       setIsEditing(false);
-    } catch (e: any) {
-      setError(e?.message ?? 'Failed to save');
-    } finally {
-      setPending(false);
+    } catch (error) {
+      console.error('Update failed:', error);
     }
-  };
+  }
 
   if (!isEditing) {
     return (
@@ -49,7 +76,8 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           }}>
-          <strong>{ingredient.quantity}</strong> - {ingredient.unit && `${ingredient.unit}`} {ingredient.name}
+          <strong>{ingredient.quantity}</strong>
+          {ingredient.unit ? ` ${ingredient.unit}` : ''} {ingredient.name}
           {ingredient.notes && (
             <div style={{ fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               <small>{ingredient.notes}</small>
@@ -66,57 +94,89 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
             Delete
           </button>
         </div>
+
+        {serverError && <small role="alert">{serverError}</small>}
       </section>
     );
   }
 
+  const isBusy = isSubmitting;
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const patch: IngredientUpdateInput = {
-          name: (formData.get('name') as string) || '',
-          quantity: Number(formData.get('quantity')),
-          unit: (formData.get('unit') as string) || undefined,
-          notes: (formData.get('notes') as string) || undefined,
-        };
-        handleSave(patch);
-      }}>
+    <form onSubmit={handleSubmit(onSubmit)} aria-busy={isBusy}>
       <fieldset role="group" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
         <label style={{ flex: '2 1 20rem' }}>
           Name
-          <input type="text" name="name" defaultValue={ingredient.name || ''} required />
+          <input
+            type="text"
+            {...register('name')}
+            aria-invalid={!!errors.name || undefined}
+            disabled={isBusy}
+            style={{ marginBottom: '1rem' }}
+          />
+          {errors.name && <small role="alert">{errors.name.message}</small>}
         </label>
 
         <div style={{ display: 'flex', gap: '1rem', flex: '1 1 16rem' }}>
           <label style={{ flex: '1 1 8rem' }}>
             Quantity
-            <input type="number" name="quantity" defaultValue={ingredient.quantity || 1} min={1} required />
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              {...register('quantity', { valueAsNumber: true })}
+              aria-invalid={!!errors.quantity || undefined}
+              disabled={isBusy}
+              style={{ marginBottom: '1rem' }}
+            />
+            {errors.quantity && <small role="alert">{errors.quantity.message}</small>}
           </label>
 
           <label style={{ flex: '1 1 8rem' }}>
             Unit
-            <input type="text" name="unit" defaultValue={ingredient.unit || ''} />
+            <select
+              {...register('unit', {
+                setValueAs: (v) => (v === '' ? undefined : v),
+              })}
+              aria-invalid={!!errors.unit || undefined}
+              disabled={isBusy}
+              style={{ marginBottom: '1rem' }}>
+              <option value="">{/* empty = no unit */}</option>
+              {UNITS.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+            {errors.unit && <small role="alert">{errors.unit.message}</small>}
           </label>
         </div>
       </fieldset>
 
       <label>
         Notes
-        <textarea name="notes" rows={3} defaultValue={ingredient.notes || ''} />
+        <textarea rows={3} {...register('notes')} aria-invalid={!!errors.notes || undefined} disabled={isBusy} />
+        {errors.notes && <small role="alert">{errors.notes.message}</small>}
       </label>
 
-      {pending && <small>Saving</small>}
-      {justSaved && <small aria-live="polite">Saved</small>}
-      {error && <small role="alert">{error}</small>}
+      {serverError && <p role="alert">{serverError}</p>}
 
       <div style={{ display: 'flex', gap: '1rem' }}>
-        <button type="submit" disabled={pending}>
-          Save
+        <button type="submit" disabled={isBusy}>
+          {isBusy ? 'Saving' : 'Save'}
         </button>
-
-        <button type="button" disabled={pending} onClick={() => setIsEditing(false)}>
+        <button
+          type="button"
+          disabled={isBusy}
+          onClick={() => {
+            reset({
+              name: ingredient.name ?? '',
+              quantity: ingredient.quantity ?? 1,
+              unit: isUnit(ingredient.unit) ? (ingredient.unit as any) : undefined,
+              notes: ingredient.notes ?? undefined,
+            });
+            setIsEditing(false);
+          }}>
           Cancel
         </button>
       </div>

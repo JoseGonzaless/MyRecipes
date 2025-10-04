@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { UNITS } from '@/lib/constants';
+
+const UnitEnum = z.enum(UNITS);
 
 const optionalTextCreate = z
   .string()
@@ -9,13 +12,17 @@ const optionalTextCreate = z
 const optionalTextUpdate = z
   .string()
   .trim()
-  .optional()
-  .transform((v) => (v === undefined ? undefined : v.length ? v : null));
+  .nullish()
+  .transform((v) => {
+    if (v === undefined) return undefined;
+    if (v === null || v.length === 0) return null;
+    return v;
+  });
 
 export const ingredientCreateSchema = z.object({
   name: z.string().trim().min(1, 'Required'),
   quantity: z.number().min(1, 'Must be ≥ 1'),
-  unit: optionalTextCreate,
+  unit: UnitEnum,
   notes: optionalTextCreate,
 });
 
@@ -25,7 +32,7 @@ export type IngredientCreateInput = z.output<typeof ingredientCreateSchema>;
 export const ingredientUpdateSchema = z.object({
   name: z.string().trim().min(1).optional(),
   quantity: z.number().min(1).optional(),
-  unit: optionalTextUpdate,
+  unit: UnitEnum,
   notes: optionalTextUpdate,
 });
 

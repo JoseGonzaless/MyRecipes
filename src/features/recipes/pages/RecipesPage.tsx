@@ -24,9 +24,9 @@ export function RecipesPage() {
               {data.map((recipe) => (
                 <article key={recipe.id}>
                   <header>
-                    <h3>
+                    <h4>
                       <Link to={`/recipes/${recipe.id}`}>{recipe.name}</Link>
-                    </h3>
+                    </h4>
                   </header>
 
                   <p>

@@ -10,7 +10,11 @@ const optionalTextUpdate = z
   .string()
   .trim()
   .nullish()
-  .transform((v) => (v && v.length ? v : undefined));
+  .transform((v) => {
+    if (v === undefined) return undefined;
+    if (v === null || v.length === 0) return null;
+    return v;
+  });
 
 const optionalIntCreate = z
   .number()
