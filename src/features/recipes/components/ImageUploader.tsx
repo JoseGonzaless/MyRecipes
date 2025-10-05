@@ -73,15 +73,17 @@ export function ImageUploader({
       <div>
         <input type="file" accept="image/*" onChange={handleFileChange} disabled={updateImage.isPending} />
 
-        <button type="button" onClick={handleUpload} disabled={!localFile || updateImage.isPending}>
-          {updateImage.isPending ? 'Uploading' : 'Replace'}
-        </button>
-
-        {imagePath && (
-          <button type="button" onClick={handleRemove} disabled={updateImage.isPending}>
-            {updateImage.isPending ? 'Removing' : 'Remove'}
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button type="button" onClick={handleUpload} disabled={!localFile || updateImage.isPending}>
+            {updateImage.isPending ? 'Uploading' : 'Replace'}
           </button>
-        )}
+
+          {imagePath && (
+            <button type="button" onClick={handleRemove} disabled={updateImage.isPending}>
+              {updateImage.isPending ? 'Removing' : 'Remove'}
+            </button>
+          )}
+        </div>
       </div>
     </section>
   );

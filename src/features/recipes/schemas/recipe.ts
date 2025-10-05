@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+const preprocessNumber = (val: unknown) => {
+  if (val === '' || val === null || val === undefined) return undefined;
+  if (typeof val === 'number' && Number.isNaN(val)) return undefined;
+  return val;
+};
+
 const optionalTextCreate = z
   .string()
   .trim()
@@ -16,24 +22,25 @@ const optionalTextUpdate = z
     return v;
   });
 
-const optionalIntCreate = z
-  .number()
-  .int()
-  .min(1, 'Must be ≥ 1')
-  .nullish()
-  .transform((v) => (Number.isNaN(v) ? undefined : v));
-
-const optionalIntUpdate = z
-  .number()
-  .int()
-  .min(1, 'Must be ≥ 1')
-  .nullish()
-  .transform((v) => (v === undefined || Number.isNaN(v) ? undefined : v));
+const requiredPositiveInt = z.preprocess(
+  preprocessNumber,
+  z
+    .union([
+      z
+        .number()
+        .refine((v) => Number.isFinite(v), { message: 'Serving size must be a number' })
+        .refine((v) => Number.isInteger(v), { message: 'Serving size must be a whole number' })
+        .refine((v) => v >= 1, { message: 'Must be > 0' }),
+      z.undefined(),
+    ])
+    .refine((v) => v !== undefined, { message: 'Required' })
+    .transform((v) => v as number)
+);
 
 export const recipeCreateSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  serving_size: z.number().int().positive('Must be at least 1'),
-  total_time: optionalIntCreate,
+  name: z.string().min(1, 'Required'),
+  serving_size: requiredPositiveInt,
+  total_time: requiredPositiveInt,
   notes: optionalTextCreate,
   image_url: optionalTextCreate,
   instructions: z.string().optional().nullable(),
@@ -43,9 +50,9 @@ export type RecipeCreateFormValues = z.input<typeof recipeCreateSchema>;
 export type RecipeCreateInput = z.output<typeof recipeCreateSchema>;
 
 export const recipeUpdateSchema = z.object({
-  name: z.string().min(1).optional(),
-  serving_size: z.number().int().min(1, 'Must be at least 1').optional(),
-  total_time: optionalIntUpdate,
+  name: z.string().min(1, 'Required').optional(),
+  serving_size: requiredPositiveInt,
+  total_time: requiredPositiveInt,
   notes: optionalTextUpdate,
   image_url: optionalTextUpdate,
   instructions: z.string().optional().nullable(),

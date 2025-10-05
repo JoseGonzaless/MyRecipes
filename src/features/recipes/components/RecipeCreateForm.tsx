@@ -54,14 +54,8 @@ export function RecipeCreateForm() {
     setFileError(null);
 
     try {
-      // Create recipe first
-      const recipe = await create.mutateAsync({
-        ...values,
-        total_time: values.total_time ?? undefined,
-        notes: values.notes ?? undefined,
-        image_url: values.image_url ?? undefined,
-        instructions: values.instructions,
-      });
+      const parsed = recipeCreateSchema.parse(values);
+      const recipe = await create.mutateAsync(parsed);
 
       // Upload image if provided
       if (file) {
@@ -81,39 +75,64 @@ export function RecipeCreateForm() {
       reset({
         name: '',
         serving_size: 1,
-        total_time: null,
+        total_time: undefined,
         notes: undefined,
         image_url: undefined,
         instructions: undefined,
       });
       setFile(null);
-    } catch (e: any) {
-      setServerError(e?.message ?? 'Failed to create recipe.');
+    } catch (error) {
+      console.error('Failed to create recipe:', error);
     }
   }
 
+  const busy = isSubmitting || create.isPending;
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} aria-busy={busy}>
       <article>
         <h2>Create a Recipe</h2>
 
         <fieldset role="group" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
           <label style={{ flex: '2 1 24rem' }}>
             Recipe Name
-            <input type="text" autoComplete="off" {...register('name')} />
+            <input
+              type="text"
+              autoComplete="off"
+              {...register('name')}
+              aria-invalid={!!errors.name || undefined}
+              style={{ marginBottom: '1rem' }}
+              disabled={busy}
+            />
             {errors.name && <small role="alert">{errors.name.message}</small>}
           </label>
 
           <div style={{ display: 'flex', flex: '1 1 16rem', gap: '1rem' }}>
             <label style={{ flex: '1 1 8rem' }}>
               Serving Size
-              <input type="number" inputMode="numeric" min={1} {...register('serving_size', { valueAsNumber: true })} />
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                {...register('serving_size', { valueAsNumber: true })}
+                aria-invalid={!!errors.serving_size || undefined}
+                style={{ marginBottom: '1rem' }}
+                disabled={busy}
+              />
               {errors.serving_size && <small role="alert">{errors.serving_size.message}</small>}
             </label>
 
             <label style={{ flex: '1 1 8rem' }}>
               Total Time (min)
-              <input type="number" inputMode="numeric" min={0} {...register('total_time', { valueAsNumber: true })} />
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                {...register('total_time', { valueAsNumber: true })}
+                aria-invalid={!!errors.total_time || undefined}
+                style={{ marginBottom: '1rem' }}
+                disabled={busy}
+              />
               {errors.total_time && <small role="alert">{errors.total_time.message}</small>}
             </label>
           </div>
@@ -121,29 +140,24 @@ export function RecipeCreateForm() {
 
         <label>
           Notes
-          <textarea rows={3} {...register('notes')} />
+          <textarea rows={3} {...register('notes')} disabled={busy} />
           {errors.notes && <small role="alert">{errors.notes.message}</small>}
         </label>
 
         <label>
           Instructions
-          <textarea rows={6} {...register('instructions')} />
+          <textarea rows={6} {...register('instructions')} disabled={busy} />
         </label>
 
         <label>
           Cover Image
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            disabled={isSubmitting || create.isPending || uploadImage.isPending}
-          />
+          <input type="file" accept="image/*" onChange={handleFileChange} disabled={busy || uploadImage.isPending} />
           {fileError && <small role="alert">{fileError}</small>}
         </label>
 
         {serverError && <p role="alert">{serverError}</p>}
 
-        <button type="submit" disabled={isSubmitting || create.isPending || uploadImage.isPending}>
+        <button type="submit" disabled={busy || uploadImage.isPending}>
           {create.isPending ? 'Adding' : uploadImage.isPending ? 'Uploading Image' : 'Add Recipe'}
         </button>
       </article>

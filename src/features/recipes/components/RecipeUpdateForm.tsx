@@ -13,7 +13,7 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting },
   } = useForm<RecipeUpdateFormValues>({
     resolver: zodResolver(recipeUpdateSchema),
     defaultValues: {
@@ -29,15 +29,10 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
 
   async function onSubmit(values: RecipeUpdateFormValues) {
     try {
-      await update.mutateAsync({
-        ...values,
-        total_time: values.total_time ?? undefined,
-        notes: values.notes ?? undefined,
-        image_url: values.image_url ?? undefined,
-        instructions: values.instructions,
-      });
+      const parsed = recipeUpdateSchema.parse(values);
+      await update.mutateAsync(parsed);
     } catch (error) {
-      console.error('Update failed:', error);
+      console.error('Failed to update recipe:', error);
     }
   }
 
@@ -46,7 +41,13 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
       <fieldset role="group" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
         <label style={{ flex: '2 1 24rem' }}>
           Name
-          <input type="text" {...register('name')} aria-invalid={!!errors.name} />
+          <input
+            type="text"
+            autoComplete="off"
+            {...register('name')}
+            aria-invalid={!!errors.name || undefined}
+            style={{ marginBottom: '1rem' }}
+          />
           {errors.name && <small role="alert">{errors.name.message}</small>}
         </label>
 
@@ -58,7 +59,8 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
               inputMode="numeric"
               min={1}
               {...register('serving_size', { valueAsNumber: true })}
-              aria-invalid={!!errors.serving_size}
+              aria-invalid={!!errors.serving_size || undefined}
+              style={{ marginBottom: '1rem' }}
             />
             {errors.serving_size && <small role="alert">{errors.serving_size.message}</small>}
           </label>
@@ -70,7 +72,8 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
               inputMode="numeric"
               min={0}
               {...register('total_time', { valueAsNumber: true })}
-              aria-invalid={!!errors.total_time}
+              aria-invalid={!!errors.total_time || undefined}
+              style={{ marginBottom: '1rem' }}
             />
             {errors.total_time && <small role="alert">{errors.total_time.message}</small>}
           </label>
@@ -88,7 +91,7 @@ export function RecipeUpdateForm({ recipe }: { recipe: Recipe }) {
         <textarea rows={6} {...register('instructions')} />
       </label>
 
-      <button type="submit" disabled={isSubmitting || update.isPending || !isDirty}>
+      <button type="submit" disabled={isSubmitting || update.isPending}>
         {update.isPending ? 'Saving' : 'Save'}
       </button>
     </form>

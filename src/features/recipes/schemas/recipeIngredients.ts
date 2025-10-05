@@ -1,12 +1,16 @@
 import { z } from 'zod';
-import { UNITS } from '@/lib/constants';
+import { UnitRequiredField } from './units';
 
-const UnitEnum = z.enum(UNITS);
+const preprocessNumber = (val: unknown) => {
+  if (val === '' || val === null || val === undefined) return undefined;
+  if (typeof val === 'number' && Number.isNaN(val)) return undefined;
+  return val;
+};
 
 const optionalTextCreate = z
   .string()
   .trim()
-  .optional()
+  .nullish()
   .transform((v) => (v && v.length ? v : undefined));
 
 const optionalTextUpdate = z
@@ -19,10 +23,25 @@ const optionalTextUpdate = z
     return v;
   });
 
+const requiredPositiveInt = z.preprocess(
+  preprocessNumber,
+  z
+    .union([
+      z
+        .number()
+        .refine((v) => Number.isFinite(v), { message: 'Serving size must be a number' })
+        .refine((v) => Number.isInteger(v), { message: 'Serving size must be a whole number' })
+        .refine((v) => v >= 1, { message: 'Must be > 0' }),
+      z.undefined(),
+    ])
+    .refine((v) => v !== undefined, { message: 'Required' })
+    .transform((v) => v as number)
+);
+
 export const ingredientCreateSchema = z.object({
   name: z.string().trim().min(1, 'Required'),
-  quantity: z.number().min(1, 'Must be ≥ 1'),
-  unit: UnitEnum,
+  quantity: requiredPositiveInt,
+  unit: UnitRequiredField,
   notes: optionalTextCreate,
 });
 
@@ -30,9 +49,9 @@ export type IngredientCreateFormValues = z.input<typeof ingredientCreateSchema>;
 export type IngredientCreateInput = z.output<typeof ingredientCreateSchema>;
 
 export const ingredientUpdateSchema = z.object({
-  name: z.string().trim().min(1).optional(),
-  quantity: z.number().min(1).optional(),
-  unit: UnitEnum,
+  name: z.string().trim().min(1, 'Required').optional(),
+  quantity: requiredPositiveInt,
+  unit: UnitRequiredField,
   notes: optionalTextUpdate,
 });
 

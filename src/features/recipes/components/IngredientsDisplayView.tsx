@@ -22,7 +22,8 @@ export function IngredientsDisplayView({ recipeId, ingredients, isLoading, isErr
         <ul>
           {ingredients.map((ingredient) => (
             <li key={ingredient.id}>
-              <strong>{ingredient.quantity}</strong> - {ingredient.unit && `${ingredient.unit}`} {ingredient.name}
+              <strong>{ingredient.quantity}</strong>
+              {ingredient.unit} {ingredient.name}
               {ingredient.notes && (
                 <div style={{ fontStyle: 'italic' }}>
                   <small>{ingredient.notes}</small>

@@ -3,13 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import type { Database } from '@/types/supabase.types';
+import { getAvailableUnits, normalizeUnit, formatUnitForDisplay, getUnitMap } from '@/lib/units';
 import {
   ingredientUpdateSchema,
   type IngredientUpdateFormValues,
   type IngredientUpdateInput,
 } from '@/features/recipes/schemas/recipeIngredients';
-
-import { UNITS, isUnit } from '@/lib/constants';
 
 type Ingredient = Database['public']['Tables']['recipe_ingredients']['Row'];
 
@@ -19,9 +18,12 @@ interface IngredientEditRowProps {
   onDelete: (id: string) => void;
 }
 
+const UNIT_ALIAS_MAP = getUnitMap();
+
 export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEditRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const normalizedUnit = normalizeUnit(ingredient.unit);
 
   const {
     register,
@@ -33,7 +35,7 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
     defaultValues: {
       name: ingredient.name ?? '',
       quantity: ingredient.quantity ?? 1,
-      unit: isUnit(ingredient.unit) ? (ingredient.unit as any) : undefined,
+      unit: normalizedUnit,
       notes: ingredient.notes ?? undefined,
     },
   });
@@ -43,7 +45,7 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
     reset({
       name: ingredient.name ?? '',
       quantity: ingredient.quantity ?? 1,
-      unit: isUnit(ingredient.unit) ? (ingredient.unit as any) : undefined,
+      unit: normalizeUnit(ingredient.unit),
       notes: ingredient.notes ?? undefined,
     });
   }, [isEditing, ingredient.id, ingredient.name, ingredient.quantity, ingredient.unit, ingredient.notes, reset]);
@@ -53,14 +55,16 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
     try {
       const parsed: IngredientUpdateInput = ingredientUpdateSchema.parse(values);
       await onSave(ingredient.id, parsed);
-      setTimeout(() => 1500);
       setIsEditing(false);
     } catch (error) {
       console.error('Update failed:', error);
+      setServerError('Failed to update ingredient.');
     }
   }
 
   if (!isEditing) {
+    const displayUnit = formatUnitForDisplay(normalizedUnit);
+
     return (
       <section
         style={{
@@ -77,7 +81,7 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
             whiteSpace: 'nowrap',
           }}>
           <strong>{ingredient.quantity}</strong>
-          {ingredient.unit ? ` ${ingredient.unit}` : ''} {ingredient.name}
+          {displayUnit} {ingredient.name}
           {ingredient.notes && (
             <div style={{ fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               <small>{ingredient.notes}</small>
@@ -141,10 +145,10 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
               aria-invalid={!!errors.unit || undefined}
               disabled={isBusy}
               style={{ marginBottom: '1rem' }}>
-              <option value="">{/* empty = no unit */}</option>
-              {UNITS.map((u) => (
-                <option key={u} value={u}>
-                  {u}
+              <option>Choose</option>
+              {getAvailableUnits().map((unit) => (
+                <option key={unit} value={unit}>
+                  {unit} {`(${UNIT_ALIAS_MAP[unit]})`}
                 </option>
               ))}
             </select>
@@ -172,7 +176,7 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
             reset({
               name: ingredient.name ?? '',
               quantity: ingredient.quantity ?? 1,
-              unit: isUnit(ingredient.unit) ? (ingredient.unit as any) : undefined,
+              unit: normalizeUnit(ingredient.unit),
               notes: ingredient.notes ?? undefined,
             });
             setIsEditing(false);
