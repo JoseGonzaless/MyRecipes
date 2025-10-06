@@ -1,6 +1,6 @@
 import { supabase } from '@/config/supabase';
-import type { Database } from '@/types/supabase.types';
 import type { IngredientCreateInput, IngredientUpdateInput } from '@/features/recipes/schemas/recipeIngredients';
+import type { Database } from '@/types/supabase.types';
 
 type Ingredient = Database['public']['Tables']['recipe_ingredients']['Row'];
 type IngredientInsert = Database['public']['Tables']['recipe_ingredients']['Insert'];
@@ -14,7 +14,10 @@ export async function listIngredients(recipeId: string): Promise<Ingredient[]> {
     .order('created_at', { ascending: true })
     .order('id', { ascending: true });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data ?? [];
 }
 
@@ -29,7 +32,10 @@ export async function insertIngredient(recipeId: string, values: IngredientCreat
 
   const { data, error } = await supabase.from('recipe_ingredients').insert(payload).select('*').single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data!;
 }
 
@@ -48,12 +54,17 @@ export async function updateIngredient(id: string, patch: IngredientUpdateInput)
     .select('*')
     .single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data!;
 }
 
 export async function deleteIngredient(id: string): Promise<void> {
   const { error } = await supabase.from('recipe_ingredients').delete().eq('id', id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
 }

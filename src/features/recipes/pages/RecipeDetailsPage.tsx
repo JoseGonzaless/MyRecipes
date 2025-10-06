@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import type { Database } from '@/types/supabase.types';
-import { useRecipe, useDeleteRecipe } from '@/features/recipes/hooks/useRecipes';
-import { useRecipeIngredients } from '@/features/recipes/hooks/useRecipeIngredients';
-import { RecipeDetailsView } from '@/features/recipes/components/RecipeDetailsView';
-import { RecipeUpdateForm } from '@/features/recipes/components/RecipeUpdateForm';
 import { ImageUploader } from '@/features/recipes/components/ImageUploader';
 import { IngredientsDisplayView } from '@/features/recipes/components/IngredientsDisplayView';
 import { IngredientsEditView } from '@/features/recipes/components/IngredientsEditView';
 import { InstructionsDisplayView } from '@/features/recipes/components/InstructionsDisplayView';
+import { RecipeDetailsView } from '@/features/recipes/components/RecipeDetailsView';
+import { RecipeUpdateForm } from '@/features/recipes/components/RecipeUpdateForm';
+import { useRecipeIngredients } from '@/features/recipes/hooks/useRecipeIngredients';
+import { useRecipe, useDeleteRecipe } from '@/features/recipes/hooks/useRecipes';
+import type { Database } from '@/types/supabase.types';
 
 type Recipe = Database['public']['Tables']['recipes']['Row'];
 type RecipeMaybeInstructions = Recipe & { instructions?: string[] | null };
@@ -32,16 +32,29 @@ export function RecipeDetailPage() {
   const del = useDeleteRecipe();
 
   // ===== Guards =====
-  if (!recipeId) return <p role="alert">Missing recipe id.</p>;
-  if (recipeLoading) return <p>Loading</p>;
-  if (error) return <p role="alert">Failed to load recipe.</p>;
-  if (!recipe) return <p role="alert">Recipe not found.</p>;
+  if (!recipeId) {
+    return <p role="alert">Missing recipe id.</p>;
+  }
+  if (recipeLoading) {
+    return <p>Loading</p>;
+  }
+  if (error) {
+    return <p role="alert">Failed to load recipe.</p>;
+  }
+  if (!recipe) {
+    return <p role="alert">Recipe not found.</p>;
+  }
 
   const instructions = (recipe as RecipeMaybeInstructions).instructions ?? null;
 
   async function handleDelete() {
-    if (!recipe) return;
-    if (!confirm('Delete this recipe? This cannot be undone.')) return;
+    if (!recipe) {
+      return;
+    }
+    if (!confirm('Delete this recipe? This cannot be undone.')) {
+      return;
+    }
+
     try {
       await del.mutateAsync(recipe.id);
       navigate('/recipes');
@@ -84,11 +97,11 @@ export function RecipeDetailPage() {
 
       {/* ===== Recipe Details (image + form/view) ===== */}
       <article>
+        <h4>Recipe Details</h4>
+
         {/* Cover image: only in edit mode */}
         {isEditing && (
           <div>
-            <h4>Cover Image</h4>
-
             <ImageUploader
               recipeId={recipe.id}
               ownerId={recipe.owner_id}
@@ -114,25 +127,31 @@ export function RecipeDetailPage() {
           </button>
         </div>
 
-        {activeTab === 'ingredients' ? (
-          isEditing ? (
-            <IngredientsEditView
-              recipeId={recipeId}
-              ingredients={ingredients}
-              isLoading={ingredientsLoading}
-              isError={ingredientsError}
-            />
-          ) : (
+        {(() => {
+          if (activeTab !== 'ingredients') {
+            return <InstructionsDisplayView instructions={instructions} />;
+          }
+
+          if (isEditing) {
+            return (
+              <IngredientsEditView
+                recipeId={recipeId}
+                ingredients={ingredients}
+                isLoading={ingredientsLoading}
+                isError={ingredientsError}
+              />
+            );
+          }
+
+          return (
             <IngredientsDisplayView
               recipeId={recipeId}
               ingredients={ingredients}
               isLoading={ingredientsLoading}
               isError={ingredientsError}
             />
-          )
-        ) : (
-          <InstructionsDisplayView instructions={instructions} />
-        )}
+          );
+        })()}
       </article>
     </section>
   );

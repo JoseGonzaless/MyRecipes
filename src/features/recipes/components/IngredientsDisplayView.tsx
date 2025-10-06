@@ -1,4 +1,5 @@
 import type { Database } from '@/types/supabase.types';
+
 import { IngredientAddForm } from './IngredientAddForm';
 
 type Ingredient = Database['public']['Tables']['recipe_ingredients']['Row'];
@@ -11,8 +12,13 @@ interface IngredientsDisplayViewProps {
 }
 
 export function IngredientsDisplayView({ recipeId, ingredients, isLoading, isError }: IngredientsDisplayViewProps) {
-  if (isLoading) return <p>Loading Ingredients</p>;
-  if (isError) return <p role="alert">Failed to load ingredients.</p>;
+  if (isLoading) {
+    return <p>Loading Ingredients</p>;
+  }
+
+  if (isError) {
+    return <p role="alert">Failed to load ingredients.</p>;
+  }
 
   return (
     <section>

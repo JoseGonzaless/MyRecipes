@@ -13,38 +13,30 @@ export const UNIT_ALIASES = [
 
 export const UNITS = ['g', 'kg', 'ml', 'L', 'tsp', 'tbsp', 'cup', 'oz', 'lb', 'piece'] as const;
 
-/* ---------- Types ---------- */
-
 export type Unit = (typeof UNITS)[number];
 export type UnitAlias = (typeof UNIT_ALIASES)[number];
 
-/* ---------- Internal Maps/Sets (derived once) ---------- */
+const UNIT_SET: ReadonlySet<Unit> = new Set(UNITS);
 
-const UNIT_TO_ALIAS_MAP: Readonly<Record<Unit, UnitAlias>> = Object.freeze(
-  UNITS.reduce((acc, u, i) => {
-    acc[u] = UNIT_ALIASES[i];
-    return acc;
-  }, {} as Record<Unit, UnitAlias>)
-);
+const UNIT_TO_ALIAS_MAP: Readonly<Record<Unit, UnitAlias>> = Object.freeze({
+  g: 'gram',
+  kg: 'kilogram',
+  ml: 'millilitre',
+  L: 'litre',
+  tsp: 'teaspoon',
+  tbsp: 'tablespoon',
+  cup: 'cup',
+  oz: 'ounce',
+  lb: 'pound',
+  piece: 'piece',
+});
 
 const ALIAS_TO_UNIT_MAP: Readonly<Record<UnitAlias, Unit>> = Object.freeze(
-  UNIT_ALIASES.reduce((acc, alias, i) => {
-    acc[alias] = UNITS[i];
-    return acc;
-  }, {} as Record<UnitAlias, Unit>)
+  Object.fromEntries(Object.entries(UNIT_TO_ALIAS_MAP).map(([u, a]) => [a, u as Unit])) as Record<UnitAlias, Unit>
 );
-
-const UNIT_SET: ReadonlySet<Unit> = new Set(UNITS);
-const UNIT_ALIAS_SET: ReadonlySet<UnitAlias> = new Set(UNIT_ALIASES);
-
-/* ---------- Getters ---------- */
 
 export function getAvailableUnits(): readonly Unit[] {
   return UNITS;
-}
-
-export function getAvailableUnitAliases(): readonly UnitAlias[] {
-  return UNIT_ALIASES;
 }
 
 export function getUnitMap(): Readonly<Record<Unit, UnitAlias>> {
@@ -52,29 +44,35 @@ export function getUnitMap(): Readonly<Record<Unit, UnitAlias>> {
 }
 
 export function getUnitAlias(u: Unit | null | undefined): UnitAlias | undefined {
-  if (!u) return undefined;
-  return UNIT_TO_ALIAS_MAP[u];
+  return u ? UNIT_TO_ALIAS_MAP[u] : undefined;
 }
-
-/* ---------- Guards & Normalizers ---------- */
 
 export function isUnit(u: unknown): u is Unit {
   return typeof u === 'string' && UNIT_SET.has(u as Unit);
 }
 
-export function isUnitAlias(u: unknown): u is UnitAlias {
-  return typeof u === 'string' && UNIT_ALIAS_SET.has(u as UnitAlias);
+export function isUnitAlias(a: unknown): a is UnitAlias {
+  return typeof a === 'string' && a in ALIAS_TO_UNIT_MAP;
 }
 
 export function normalizeUnit(u: unknown): Unit | undefined {
-  if (typeof u !== 'string') return undefined;
+  if (typeof u !== 'string') {
+    return undefined;
+  }
+
   const v = u.trim();
-  if (isUnit(v)) return v as Unit;
-  if (isUnitAlias(v as UnitAlias)) return ALIAS_TO_UNIT_MAP[v as UnitAlias];
+
+  if (isUnit(v)) {
+    return v as Unit;
+  }
+
+  if (isUnitAlias(v)) {
+    return ALIAS_TO_UNIT_MAP[v];
+  }
+
   return undefined;
 }
 
 export function formatUnitForDisplay(u: Unit | null | undefined): string {
-  if (!u) return '';
-  return u;
+  return u ?? '';
 }

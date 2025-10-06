@@ -1,8 +1,8 @@
-import type { Database } from '@/types/supabase.types';
-import { IngredientEditRow } from '@/features/recipes/components/IngredientEditRow';
 import { IngredientAddForm } from '@/features/recipes/components/IngredientAddForm';
+import { IngredientEditRow } from '@/features/recipes/components/IngredientEditRow';
 import { useUpdateIngredient, useDeleteIngredient } from '@/features/recipes/hooks/useRecipeIngredients';
 import type { IngredientUpdateInput } from '@/features/recipes/schemas/recipeIngredients';
+import type { Database } from '@/types/supabase.types';
 
 type Ingredient = Database['public']['Tables']['recipe_ingredients']['Row'];
 
@@ -25,8 +25,13 @@ export function IngredientsEditView({ recipeId, ingredients, isLoading, isError 
     remove.mutate(id);
   };
 
-  if (isLoading) return <p>Loading Ingredients</p>;
-  if (isError) return <p role="alert">Failed to load ingredients.</p>;
+  if (isLoading) {
+    return <p>Loading Ingredients</p>;
+  }
+
+  if (isError) {
+    return <p role="alert">Failed to load ingredients.</p>;
+  }
 
   return (
     <div>

@@ -1,6 +1,6 @@
 import { supabase } from '@/config/supabase';
-import type { Database } from '@/types/supabase.types';
 import type { RecipeCreateInput, RecipeUpdateInput } from '@/features/recipes/schemas/recipe';
+import type { Database } from '@/types/supabase.types';
 
 type Recipe = Database['public']['Tables']['recipes']['Row'];
 type RecipeInsert = Database['public']['Tables']['recipes']['Insert'];
@@ -9,14 +9,20 @@ type RecipeUpdate = Database['public']['Tables']['recipes']['Update'];
 export async function listRecipes(): Promise<Recipe[]> {
   const { data, error } = await supabase.from('recipes').select('*').order('created_at', { ascending: false });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data ?? [];
 }
 
 export async function getRecipe(id: string): Promise<Recipe> {
   const { data, error } = await supabase.from('recipes').select('*').eq('id', id).single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data!;
 }
 
@@ -32,7 +38,10 @@ export async function createRecipe(input: RecipeCreateInput): Promise<Recipe> {
 
   const { data, error } = await supabase.from('recipes').insert(payload).select('*').single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data!;
 }
 
@@ -41,14 +50,19 @@ export async function updateRecipe(id: string, patch: RecipeUpdateInput): Promis
 
   const { data, error } = await supabase.from('recipes').update(updatePayload).eq('id', id).select('*').single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data!;
 }
 
 export async function deleteRecipe(id: string): Promise<void> {
   const { error } = await supabase.from('recipes').delete().eq('id', id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function uploadRecipeImage(file: File, recipeId: string, userId: string): Promise<string> {
@@ -57,7 +71,10 @@ export async function uploadRecipeImage(file: File, recipeId: string, userId: st
 
   const { error } = await supabase.storage.from('recipe-images').upload(path, file);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return path;
 }
 
@@ -68,14 +85,20 @@ export async function updateRecipeImage(id: string, imageUrl: string | null | un
 
   const { data, error } = await supabase.from('recipes').update(updatePayload).eq('id', id).select('*').single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data!;
 }
 
 export async function createSignedImageUrl(path: string, expiresIn = 3600): Promise<string> {
   const { data, error } = await supabase.storage.from('recipe-images').createSignedUrl(path, expiresIn);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
   return data.signedUrl;
 }
 
@@ -83,13 +106,21 @@ export async function createSignedImageUrl(path: string, expiresIn = 3600): Prom
 function buildUpdatePayload(patch: RecipeUpdateInput): Partial<RecipeUpdate> {
   const payload: Partial<RecipeUpdate> = {};
 
-  if (patch.name !== undefined) payload.name = patch.name;
-  if (patch.serving_size !== undefined) payload.serving_size = patch.serving_size;
+  if (patch.name !== undefined) {
+    payload.name = patch.name;
+  }
+  if (patch.serving_size !== undefined) {
+    payload.serving_size = patch.serving_size;
+  }
   if (patch.total_time !== undefined) {
     payload.total_time = patch.total_time === null ? null : String(patch.total_time);
   }
-  if (patch.notes !== undefined) payload.notes = patch.notes ?? null;
-  if (patch.image_url !== undefined) payload.image_url = patch.image_url ?? null;
+  if (patch.notes !== undefined) {
+    payload.notes = patch.notes ?? null;
+  }
+  if (patch.image_url !== undefined) {
+    payload.image_url = patch.image_url ?? null;
+  }
   if (patch.instructions !== undefined) {
     payload.instructions = normalizeInstructions(patch.instructions);
   }
@@ -98,7 +129,9 @@ function buildUpdatePayload(patch: RecipeUpdateInput): Partial<RecipeUpdate> {
 }
 
 function normalizeInstructions(v: string | string[] | null | undefined): string[] | null {
-  if (v == null) return null;
+  if (v == null) {
+    return null;
+  }
 
   // If textarea string: split into lines
   const arr = Array.isArray(v) ? v : v.split(/\r?\n/);

@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Database } from '@/types/supabase.types';
 
 import {
   listIngredients,
@@ -8,6 +7,7 @@ import {
   deleteIngredient,
 } from '@/features/recipes/api/recipeIngredients';
 import type { IngredientCreateInput, IngredientUpdateInput } from '@/features/recipes/schemas/recipeIngredients';
+import type { Database } from '@/types/supabase.types';
 
 type Ingredient = Database['public']['Tables']['recipe_ingredients']['Row'];
 
@@ -64,11 +64,15 @@ export function useCreateIngredient(recipeId: string) {
     },
 
     onError: (_err, _values, ctx) => {
-      if (ctx) qc.setQueryData(ctx.key, ctx.prev);
+      if (ctx) {
+        qc.setQueryData(ctx.key, ctx.prev);
+      }
     },
 
     onSuccess: (real, _values, ctx) => {
-      if (!ctx) return;
+      if (!ctx) {
+        return;
+      }
       setList(qc, ctx.key, (old) => old.map((row) => (row.id === ctx.tempId ? real : row)));
     },
   });
@@ -105,7 +109,9 @@ export function useUpdateIngredient(recipeId: string) {
     },
 
     onError: (_err, _vars, ctx) => {
-      if (ctx) qc.setQueryData(ctx.key, ctx.prev);
+      if (ctx) {
+        qc.setQueryData(ctx.key, ctx.prev);
+      }
     },
   });
 }
@@ -127,7 +133,9 @@ export function useDeleteIngredient(recipeId: string) {
     },
 
     onError: (_err, _id, ctx) => {
-      if (ctx) qc.setQueryData(ctx.key, ctx.prev);
+      if (ctx) {
+        qc.setQueryData(ctx.key, ctx.prev);
+      }
     },
   });
 }

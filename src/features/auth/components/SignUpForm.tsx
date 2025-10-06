@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import type { z } from 'zod';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { signUp } from '@/features/auth/api/auth';
 import { signUpSchema, type SignUpInput } from '@/features/auth/schemas/auth';
+
+import type { z } from 'zod';
 
 export function SignUpForm() {
   const [serverError, setServerError] = useState<string | null>(null);

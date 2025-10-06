@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { ResetPasswordForm } from '@/features/auth/components/ResetPasswordForm';
 import { SignInForm } from '@/features/auth/components/SignInForm';
 import { SignUpForm } from '@/features/auth/components/SignUpForm';
-import { ResetPasswordForm } from '@/features/auth/components/ResetPasswordForm';
 
 type Mode = 'signin' | 'signup' | 'reset';
 

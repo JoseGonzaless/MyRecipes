@@ -2,15 +2,14 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import RequireAuth from '@/app/guards/RequireAuth';
 import RequireGuest from '@/app/guards/RequireGuest';
-import PublicLayout from '@/components/layout/PublicLayout';
 import PrivateLayout from '@/components/layout/PrivateLayout';
-
+import PublicLayout from '@/components/layout/PublicLayout';
 import { AuthPage } from '@/features/auth/pages/AuthPage';
 import { UpdatePasswordPage } from '@/features/auth/pages/UpdatePasswordPage';
-import { PlannerPage } from '@/features/planner/pages/PlannerPage';
-import { RecipesPage } from '@/features/recipes/pages/RecipesPage';
-import { RecipeDetailPage } from '@/features/recipes/pages/RecipeDetailsPage';
 import { PantryPage } from '@/features/pantry/pages/PantryPage';
+import { PlannerPage } from '@/features/planner/pages/PlannerPage';
+import { RecipeDetailPage } from '@/features/recipes/pages/RecipeDetailsPage';
+import { RecipesPage } from '@/features/recipes/pages/RecipesPage';
 import { ShoppingPage } from '@/features/shopping/pages/ShoppingPage';
 
 export const router = createBrowserRouter([

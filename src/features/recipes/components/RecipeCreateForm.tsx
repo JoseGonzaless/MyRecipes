@@ -1,9 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
-import { recipeCreateSchema, type RecipeCreateFormValues } from '../schemas/recipe';
 import { useCreateRecipe, useUploadRecipeImage } from '../hooks/useRecipes';
+import { recipeCreateSchema, type RecipeCreateFormValues } from '../schemas/recipe';
 
 export function RecipeCreateForm() {
   const create = useCreateRecipe();
@@ -65,8 +65,8 @@ export function RecipeCreateForm() {
             recipeId: recipe.id,
             userId: recipe.owner_id,
           });
-        } catch (error) {
-          setServerError('Recipe created but image upload failed. Please try uploading the image again.');
+        } catch (e: any) {
+          setServerError(e?.message ?? 'Recipe created but image upload failed. Please try uploading the image again.');
           return;
         }
       }
@@ -158,7 +158,15 @@ export function RecipeCreateForm() {
         {serverError && <p role="alert">{serverError}</p>}
 
         <button type="submit" disabled={busy || uploadImage.isPending}>
-          {create.isPending ? 'Adding' : uploadImage.isPending ? 'Uploading Image' : 'Add Recipe'}
+          {(() => {
+            if (create.isPending) {
+              return 'Adding';
+            }
+            if (uploadImage.isPending) {
+              return 'Uploading Image';
+            }
+            return 'Add Recipe';
+          })()}
         </button>
       </article>
     </form>

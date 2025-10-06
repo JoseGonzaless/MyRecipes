@@ -1,9 +1,14 @@
 import { z } from 'zod';
+
 import { UnitRequiredField } from './units';
 
 const preprocessNumber = (val: unknown) => {
-  if (val === '' || val === null || val === undefined) return undefined;
-  if (typeof val === 'number' && Number.isNaN(val)) return undefined;
+  if (val === '' || val === null || val === undefined) {
+    return undefined;
+  }
+  if (typeof val === 'number' && Number.isNaN(val)) {
+    return undefined;
+  }
   return val;
 };
 
@@ -18,8 +23,12 @@ const optionalTextUpdate = z
   .trim()
   .nullish()
   .transform((v) => {
-    if (v === undefined) return undefined;
-    if (v === null || v.length === 0) return null;
+    if (v === undefined) {
+      return undefined;
+    }
+    if (v === null || v.length === 0) {
+      return null;
+    }
     return v;
   });
 

@@ -24,10 +24,10 @@ export function RecipeDetailsView({ recipe }: RecipeDetailsViewProps) {
       </p>
 
       {recipe.notes && (
-        <p>
+        <div>
           <strong>Notes:</strong>
           <div style={{ whiteSpace: 'pre-wrap', marginLeft: '1rem' }}>{recipe.notes}</div>
-        </p>
+        </div>
       )}
     </div>
   );

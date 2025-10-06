@@ -1,8 +1,8 @@
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import { recipeUpdateSchema, type RecipeUpdateFormValues } from '@/features/recipes/schemas/recipe';
 import { useUpdateRecipe } from '@/features/recipes/hooks/useRecipes';
+import { recipeUpdateSchema, type RecipeUpdateFormValues } from '@/features/recipes/schemas/recipe';
 import type { Database } from '@/types/supabase.types';
 
 type Recipe = Database['public']['Tables']['recipes']['Row'];

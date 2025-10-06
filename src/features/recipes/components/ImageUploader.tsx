@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { useUpdateRecipeImage, useSignedRecipeImage } from '@/features/recipes/hooks/useRecipes';
 
 export function ImageUploader({
@@ -39,7 +40,9 @@ export function ImageUploader({
   };
 
   const handleUpload = async () => {
-    if (!localFile) return;
+    if (!localFile) {
+      return;
+    }
 
     try {
       setError(null);

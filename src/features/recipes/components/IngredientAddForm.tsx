@@ -1,14 +1,14 @@
-import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { getAvailableUnits, getUnitMap } from '@/lib/units';
 import { useCreateIngredient } from '@/features/recipes/hooks/useRecipeIngredients';
 import {
   ingredientCreateSchema,
   type IngredientCreateFormValues,
   type IngredientCreateInput,
 } from '@/features/recipes/schemas/recipeIngredients';
+import { getAvailableUnits, getUnitMap } from '@/lib/units';
 
 const UNIT_ALIAS_MAP = getUnitMap();
 
@@ -79,7 +79,7 @@ export function IngredientAddForm({ recipeId }: { recipeId: string }) {
               aria-invalid={!!errors.unit || undefined}
               style={{ marginBottom: '1rem' }}
               disabled={busy}>
-              <option> Choose </option>
+              <option value="">Choose</option>
               {getAvailableUnits().map((unit) => (
                 <option key={unit} value={unit}>
                   {unit} {`(${UNIT_ALIAS_MAP[unit]})`}

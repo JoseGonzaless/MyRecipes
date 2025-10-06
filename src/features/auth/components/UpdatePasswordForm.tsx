@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import type { z } from 'zod';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
 import { signOut } from '@/features/auth/api/auth';
 import { updatePassword } from '@/features/auth/api/updatePassword';
 import { updatePasswordSchema, type UpdatePasswordInput } from '@/features/auth/schemas/update';
+
+import type { z } from 'zod';
 
 export function UpdatePasswordForm() {
   const [serverError, setServerError] = useState<string | null>(null);

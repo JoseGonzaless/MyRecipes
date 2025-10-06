@@ -1,14 +1,14 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
-import type { Database } from '@/types/supabase.types';
-import { getAvailableUnits, normalizeUnit, formatUnitForDisplay, getUnitMap } from '@/lib/units';
 import {
   ingredientUpdateSchema,
   type IngredientUpdateFormValues,
   type IngredientUpdateInput,
 } from '@/features/recipes/schemas/recipeIngredients';
+import { getAvailableUnits, normalizeUnit, formatUnitForDisplay, getUnitMap } from '@/lib/units';
+import type { Database } from '@/types/supabase.types';
 
 type Ingredient = Database['public']['Tables']['recipe_ingredients']['Row'];
 
@@ -41,7 +41,10 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
   });
 
   useEffect(() => {
-    if (!isEditing) return;
+    if (!isEditing) {
+      return;
+    }
+
     reset({
       name: ingredient.name ?? '',
       quantity: ingredient.quantity ?? 1,
@@ -145,7 +148,7 @@ export function IngredientEditRow({ ingredient, onSave, onDelete }: IngredientEd
               aria-invalid={!!errors.unit || undefined}
               disabled={isBusy}
               style={{ marginBottom: '1rem' }}>
-              <option>Choose</option>
+              <option value="">Choose</option>
               {getAvailableUnits().map((unit) => (
                 <option key={unit} value={unit}>
                   {unit} {`(${UNIT_ALIAS_MAP[unit]})`}
